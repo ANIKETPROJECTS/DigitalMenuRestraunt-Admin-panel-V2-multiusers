@@ -20,7 +20,7 @@ interface MenuItem {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  price: string | number;
   category: string;
   isVeg: boolean;
   image: string;
@@ -219,7 +219,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
 
       const payload = {
         ...data,
-        price: parseFloat(data.price),
+        price: data.price,
         restaurantId,
       };
 
@@ -526,8 +526,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
                         <Label htmlFor="price" className="text-gray-700">Price (₹) *</Label>
                         <Input
                           id="price"
-                          type="number"
-                          step="1"
+                          type="text"
                           value={formData.price}
                           onChange={(e) => handleInputChange("price", e.target.value)}
                           className="bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500"
@@ -770,7 +769,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center text-blue-600 font-semibold">
                               <IndianRupee className="w-4 h-4 mr-1 shrink-0" />
-                              <span className="truncate">{Number(item.price).toFixed(0)}</span>
+                              <span className="truncate">{item.price}</span>
                             </div>
                             <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs truncate max-w-[100px]">
                               {item.category}
