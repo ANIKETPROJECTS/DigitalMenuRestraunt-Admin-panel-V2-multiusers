@@ -10,7 +10,7 @@ import { authenticateAdmin, generateToken, AuthRequest } from "./middleware/auth
 import bcrypt from "bcryptjs";
 import { validateAdminCredentials } from "./fallback-auth";
 import { getMockRestaurants, addMockRestaurant, getMockMenuItems, addMockMenuItem, deleteMockRestaurant } from "./mock-data";
-import { connectToRestaurantDatabase, getMenuItemModel, fetchMenuItemsFromCustomDB, createMenuItemInCustomDB, updateMenuItemInCustomDB, deleteMenuItemFromCustomDB, extractCategoriesFromCustomDB, getImageModel } from "./db/dynamic-mongodb";
+import { connectToRestaurantDatabase, getMenuItemModel, fetchMenuItemsFromCustomDB, createMenuItemInCustomDB, updateMenuItemInCustomDB, deleteMenuItemFromCustomDB, extractCategoriesFromCustomDB } from "./db/dynamic-mongodb";
 import { generateQRCode } from "./utils/qrcode";
 import adminSettingsRoutes from "./routes/admin-settings";
 import multer from 'multer';
@@ -1202,18 +1202,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image Upload Route - Store in Restaurant's MongoDB
+  // Image Upload Route - Return base64 to embed directly in menu item
   app.post("/api/admin/upload-image", authenticateAdmin, upload.single('image'), async (req, res) => {
     try {
       const file = req.file;
-      const restaurantId = req.body.restaurantId || (req as any).user?.restaurantId;
 
       if (!file) {
         return res.status(400).json({ message: "No image file uploaded" });
-      }
-
-      if (!restaurantId) {
-        return res.status(400).json({ message: "Restaurant ID is required" });
       }
 
       // Validate file type - accept standard images and raw formats
@@ -1225,27 +1220,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Only image files are allowed" });
       }
 
-      // Get restaurant and its MongoDB URI
-      const restaurant = await Restaurant.findById(restaurantId);
-      if (!restaurant || !restaurant.mongoUri) {
-        return res.status(400).json({ message: "Restaurant not found or has no MongoDB URI" });
-      }
-
-      // Connect to restaurant's database
-      const restaurantConnection = await connectToRestaurantDatabase(restaurant.mongoUri);
-      const ImageModel = getImageModel(restaurantConnection);
-
       // Read file and convert to base64
       const fileData = fs.readFileSync(file.path);
       const base64Data = fileData.toString('base64');
-
-      // Save to restaurant's MongoDB
-      const image = new ImageModel({
-        data: base64Data,
-        mimeType: file.mimetype || 'image/jpeg'
-      });
-
-      const savedImage = await image.save();
+      const mimeType = file.mimetype || 'image/jpeg';
 
       // Clean up uploaded temp file
       try {
@@ -1254,56 +1232,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.warn('Failed to cleanup uploaded file:', cleanupError);
       }
 
-      // Return the image ID with restaurant ID in URL
-      const imageUrl = `/api/admin/images/${restaurantId}/${savedImage._id.toString()}`;
+      // Return base64 string that will be embedded in the menu item document
+      const base64String = `data:${mimeType};base64,${base64Data}`;
       
-      console.log(`✅ Image saved to restaurant ${restaurantId}'s database with ID: ${savedImage._id.toString()}`);
+      console.log(`✅ Image converted to base64 (${(base64String.length / 1024).toFixed(2)}KB)`);
       res.json({ 
         success: true,
-        imageId: savedImage._id.toString(),
-        imageUrl: imageUrl,
-        message: "Image uploaded successfully to restaurant database"
+        base64: base64String,
+        mimeType: mimeType,
+        message: "Image converted to base64 successfully"
       });
 
     } catch (error) {
       console.error('Error uploading image:', error);
       res.status(500).json({ message: "Failed to upload image", error: error.message });
-    }
-  });
-
-  // Image Fetch Route - Retrieve from Restaurant's MongoDB
-  app.get("/api/admin/images/:restaurantId/:imageId", async (req, res) => {
-    try {
-      const { restaurantId, imageId } = req.params;
-
-      // Validate MongoDB ObjectIds
-      if (!mongoose.Types.ObjectId.isValid(restaurantId) || !mongoose.Types.ObjectId.isValid(imageId)) {
-        return res.status(400).json({ message: "Invalid restaurant ID or image ID" });
-      }
-
-      // Get restaurant and its MongoDB URI
-      const restaurant = await Restaurant.findById(restaurantId);
-      if (!restaurant || !restaurant.mongoUri) {
-        return res.status(404).json({ message: "Restaurant not found or has no MongoDB URI" });
-      }
-
-      // Connect to restaurant's database
-      const restaurantConnection = await connectToRestaurantDatabase(restaurant.mongoUri);
-      const ImageModel = getImageModel(restaurantConnection);
-
-      const image = await ImageModel.findById(imageId);
-
-      if (!image) {
-        return res.status(404).json({ message: "Image not found in restaurant database" });
-      }
-
-      // Send image data as binary
-      res.setHeader('Content-Type', image.mimeType);
-      res.send(Buffer.from(image.data, 'base64'));
-
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      res.status(500).json({ message: "Failed to fetch image", error: error.message });
     }
   });
 
