@@ -49,6 +49,7 @@ export default function MenuManagement() {
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [scrollPosition, setScrollPosition] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -239,6 +240,11 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
       queryClient.invalidateQueries({ queryKey: [`/api/admin/restaurants/${restaurantId}/menu-items`] });
       setIsDialogOpen(false);
       resetForm();
+      if (editingItem) {
+        setTimeout(() => {
+          window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+        }, 100);
+      }
     },
     onError: (error: any) => {
       toast({
@@ -319,6 +325,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   };
 
   const handleEdit = (item: MenuItem) => {
+    setScrollPosition(window.scrollY);
     setEditingItem(item);
     setFormData({
       name: item.name,
