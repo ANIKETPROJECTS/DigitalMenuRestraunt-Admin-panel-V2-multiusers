@@ -24,9 +24,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await connectToDatabase();
   // Customer-facing routes removed - Admin-only system
 
-  // Configure multer for file uploads
+  // Configure multer for file uploads - no size limit
   const upload = multer({ 
     dest: 'uploads/',
+    limits: {
+      fileSize: 500 * 1024 * 1024, // 500MB per file
+      fieldSize: 500 * 1024 * 1024  // 500MB for form fields
+    },
     fileFilter: (req, file, cb) => {
       const allowedTypes = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

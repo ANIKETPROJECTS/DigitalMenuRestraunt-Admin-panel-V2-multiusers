@@ -188,7 +188,6 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
       });
     },
     onSuccess: () => {
-      console.log('✅ onSuccess called, scrollPosition:', scrollPosition);
       toast({
         title: "Success",
         description: `Menu item ${editingItem ? "updated" : "created"} successfully`,
@@ -200,10 +199,8 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
       
       // Restore scroll after dialog closes
       setTimeout(() => {
-        console.log('✅ Restoring scroll after success to:', scrollPosition);
         document.documentElement.scrollTop = scrollPosition;
         window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' });
-        console.log('✅ Current window.scrollY after restore:', window.scrollY);
       }, 500);
     },
     onError: (error: any) => {
@@ -286,7 +283,6 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
 
   const handleEdit = (item: MenuItem) => {
     const scrollY = window.scrollY;
-    console.log('🔵 handleEdit called, current scrollY:', scrollY);
     setScrollPosition(scrollY);
     
     setEditingItem(item);
@@ -305,17 +301,13 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   };
 
   const handleDialogClose = (open: boolean) => {
-    console.log('🟠 handleDialogClose called, open:', open, 'scrollPosition:', scrollPosition);
     setIsDialogOpen(open);
     
     if (!open) {
-      console.log('🟠 Dialog closing, scheduling scroll restore...');
-      // Wait for Dialog animation to complete (350ms) plus some buffer
+      // Wait for Dialog animation to complete before restoring scroll
       setTimeout(() => {
-        console.log('🟠 Restoring scroll to:', scrollPosition);
         document.documentElement.scrollTop = scrollPosition;
         window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' });
-        console.log('🟠 Current window.scrollY after restore:', window.scrollY);
       }, 500);
     }
   };
