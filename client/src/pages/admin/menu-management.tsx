@@ -188,18 +188,23 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
       });
     },
     onSuccess: () => {
+      console.log('✅ onSuccess called, scrollPosition:', scrollPosition);
       toast({
         title: "Success",
         description: `Menu item ${editingItem ? "updated" : "created"} successfully`,
       });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/restaurants/${restaurantId}/menu-items`] });
-      // Restore scroll before closing dialog
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
-      window.scrollTo(0, scrollPosition);
+      
       setIsDialogOpen(false);
       resetForm();
+      
+      // Restore scroll after dialog closes
+      setTimeout(() => {
+        console.log('✅ Restoring scroll after success to:', scrollPosition);
+        document.documentElement.scrollTop = scrollPosition;
+        window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' });
+        console.log('✅ Current window.scrollY after restore:', window.scrollY);
+      }, 500);
     },
     onError: (error: any) => {
       toast({
@@ -280,12 +285,9 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   };
 
   const handleEdit = (item: MenuItem) => {
-    setScrollPosition(window.scrollY);
-    // Prevent scroll reset by adding scroll position to body style
     const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.top = `-${scrollY}px`;
+    console.log('🔵 handleEdit called, current scrollY:', scrollY);
+    setScrollPosition(scrollY);
     
     setEditingItem(item);
     setFormData({
@@ -303,14 +305,19 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   };
 
   const handleDialogClose = (open: boolean) => {
-    if (!open) {
-      // Restore scroll position by removing fixed positioning
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
-      window.scrollTo(0, scrollPosition);
-    }
+    console.log('🟠 handleDialogClose called, open:', open, 'scrollPosition:', scrollPosition);
     setIsDialogOpen(open);
+    
+    if (!open) {
+      console.log('🟠 Dialog closing, scheduling scroll restore...');
+      // Wait for Dialog animation to complete (350ms) plus some buffer
+      setTimeout(() => {
+        console.log('🟠 Restoring scroll to:', scrollPosition);
+        document.documentElement.scrollTop = scrollPosition;
+        window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' });
+        console.log('🟠 Current window.scrollY after restore:', window.scrollY);
+      }, 500);
+    }
   };
 
   const handleDelete = (itemId: string) => {
