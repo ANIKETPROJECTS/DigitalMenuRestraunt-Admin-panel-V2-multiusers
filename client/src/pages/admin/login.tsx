@@ -74,12 +74,18 @@ export default function AdminLogin() {
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
           <Tabs defaultValue="admin" onValueChange={setRole} className="w-full mb-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="admin" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-2 bg-blue-600 p-1">
+              <TabsTrigger 
+                value="admin" 
+                className="flex items-center gap-2 text-white data-[state=active]:bg-white data-[state=active]:text-blue-600 border border-transparent data-[state=active]:border-white"
+              >
                 <User className="w-4 h-4" />
                 Admin User
               </TabsTrigger>
-              <TabsTrigger value="master" className="flex items-center gap-2">
+              <TabsTrigger 
+                value="master" 
+                className="flex items-center gap-2 text-white data-[state=active]:bg-white data-[state=active]:text-blue-600 border border-transparent data-[state=active]:border-white"
+              >
                 <ShieldCheck className="w-4 h-4" />
                 Master Admin
               </TabsTrigger>
