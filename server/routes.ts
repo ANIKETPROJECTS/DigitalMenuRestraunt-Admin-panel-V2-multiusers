@@ -115,10 +115,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Authentication Routes
   app.post("/api/admin/login", async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { username, password, role } = req.body;
       
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      // Enforce Master Admin logic:
+      // If the username is 'admin', it MUST be a master admin login attempt.
+      if (username === "admin" && role !== "master") {
+        return res.status(403).json({ message: "Master account must login through the Master Admin tab" });
+      }
+      
+      // If logging in as master, the username MUST be 'admin'
+      if (role === "master" && username !== "admin") {
+        return res.status(403).json({ message: "Only the main admin account can login as Master Admin" });
       }
 
       // Try MongoDB first with quick timeout, then fallback
@@ -155,6 +166,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try fallback authentication
       const fallbackAdmin = await validateAdminCredentials(username, password);
       if (fallbackAdmin) {
+        // If the fallback matches the master admin credentials, ensure it's a master login
+        if (username === "admin" && role !== "master") {
+           return res.status(403).json({ message: "Master account must login through the Master Admin tab" });
+        }
+
         const token = generateToken(fallbackAdmin.id);
         return res.json({ 
           token, 
