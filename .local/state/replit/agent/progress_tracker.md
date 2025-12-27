@@ -30,3 +30,9 @@
     - Mutations: editUserMutation (PATCH) and deleteUserMutation (DELETE)
     - Query invalidation on success for real-time updates
     - Workflow restarted and verified - CRUD operations working
+[x] 16. Fixed SelectItem error in Edit User Dialog:
+    - Changed empty string value to "unassigned" 
+    - Radix UI Select doesn't allow empty string values
+    - Now shows "No Restaurant" label with "unassigned" value
+    - Converts back to empty string when saving
+    - Workflow restarted and verified - no console errors

@@ -520,12 +520,12 @@ export default function AdminDashboard() {
             </div>
             <div className="space-y-2">
               <Label>Assign Restaurant</Label>
-              <Select value={editedUser.assignedRestaurant} onValueChange={val => setEditedUser({...editedUser, assignedRestaurant: val})}>
+              <Select value={editedUser.assignedRestaurant || "unassigned"} onValueChange={val => setEditedUser({...editedUser, assignedRestaurant: val === "unassigned" ? "" : val})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a restaurant" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="unassigned">No Restaurant</SelectItem>
                   {restaurants?.map((r: any) => (
                     <SelectItem key={r._id} value={r._id}>{r.name}</SelectItem>
                   ))}
