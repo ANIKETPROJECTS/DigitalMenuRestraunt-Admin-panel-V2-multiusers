@@ -373,25 +373,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isMasterRole = admin.role === 'master';
       const isMaster = isMasterRole || isAdminUsername;
 
+      console.log(`📊 Fetching restaurants - isMaster: ${isMaster}, username: ${admin.username}, role: ${admin.role}`);
+
       // Try MongoDB first with quick timeout, then fallback
       try {
-        const query = isMaster 
-          ? Restaurant.find().sort({ createdAt: -1 })
-          : Restaurant.find({ _id: admin.assignedRestaurant }).sort({ createdAt: -1 });
-
-        const restaurants = await Promise.race([
-          query,
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
-          )
-        ]);
+        let restaurants;
+        if (isMaster) {
+          console.log("✅ Master admin - fetching ALL restaurants");
+          restaurants = await Promise.race([
+            Restaurant.find().sort({ createdAt: -1 }),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
+            )
+          ]);
+        } else {
+          console.log(`🏢 Regular admin - fetching assigned restaurant: ${admin.assignedRestaurant}`);
+          restaurants = await Promise.race([
+            Restaurant.find({ _id: admin.assignedRestaurant }).sort({ createdAt: -1 }),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
+            )
+          ]);
+        }
+        
+        console.log(`📦 Returning ${restaurants?.length || 0} restaurants`);
         res.json(restaurants);
       } catch (mongoError) {
         // MongoDB not available or timeout, return mock data quickly
         console.log("MongoDB not available for restaurants, returning mock data");
-        res.json(getMockRestaurants());
+        const mockRest = getMockRestaurants();
+        console.log(`📦 Mock data: returning ${mockRest?.length || 0} restaurants`);
+        res.json(mockRest);
       }
     } catch (error) {
+      console.error("❌ Error fetching restaurants:", error);
       res.status(500).json({ message: "Failed to fetch restaurants" });
     }
   });
