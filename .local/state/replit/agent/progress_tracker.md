@@ -23,4 +23,10 @@
     - Only visible to Master Admin users
     - Updated loading state to include usersLoading
     - Workflow restarted and verified - Admin Users section is now working
-[x] 14. Re-installed cross-env package (was missing) and restarted workflow - app running successfully
+[x] 15. Added CRUD operations for Admin Users:
+    - Edit: Modal to update email and assigned restaurant (username read-only)
+    - Delete: Confirmation dialog with delete mutation
+    - Added Edit and Delete buttons to each admin user card
+    - Mutations: editUserMutation (PATCH) and deleteUserMutation (DELETE)
+    - Query invalidation on success for real-time updates
+    - Workflow restarted and verified - CRUD operations working

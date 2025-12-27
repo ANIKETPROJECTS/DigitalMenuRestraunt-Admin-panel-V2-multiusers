@@ -33,9 +33,16 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
+  const [editUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
   const [newUser, setNewUser] = useState({
     username: "",
     password: "",
+    email: "",
+    assignedRestaurant: ""
+  });
+  const [editedUser, setEditedUser] = useState({
+    username: "",
     email: "",
     assignedRestaurant: ""
   });
@@ -109,6 +116,55 @@ export default function AdminDashboard() {
   const handleDelete = (restaurantId: string, restaurantName: string) => {
     if (window.confirm(`Are you sure you want to delete "${restaurantName}"? This action cannot be undone.`)) {
       deleteMutation.mutate(restaurantId);
+    }
+  };
+
+  const editUserMutation = useMutation({
+    mutationFn: async (userData: { id: string; email: string; assignedRestaurant: string }) => {
+      return await apiRequest(`/api/admin/users/${userData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ email: userData.email, assignedRestaurant: userData.assignedRestaurant }),
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Admin user updated successfully" });
+      setEditUserModalOpen(false);
+      setEditingUser(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to update user", variant: "destructive" });
+    }
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return await apiRequest(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Admin user deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to delete user", variant: "destructive" });
+    }
+  });
+
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+    setEditedUser({
+      username: user.username,
+      email: user.email,
+      assignedRestaurant: user.assignedRestaurant || ""
+    });
+    setEditUserModalOpen(true);
+  };
+
+  const handleDeleteUser = (userId: string, username: string) => {
+    if (window.confirm(`Are you sure you want to delete "${username}"? This action cannot be undone.`)) {
+      deleteUserMutation.mutate(userId);
     }
   };
 
@@ -235,7 +291,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {adminUsers?.map((user: any) => (
-                  <Card key={user._id} className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <Card key={user._id} className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
@@ -259,9 +315,9 @@ export default function AdminDashboard() {
                       </div>
                     </CardHeader>
                     
-                    <CardContent>
+                    <CardContent className="flex-1 flex flex-col">
                       {user.assignedRestaurant && (
-                        <div className="space-y-2">
+                        <div className="space-y-2 mb-4">
                           <p className="text-sm text-gray-600">
                             <span className="font-medium">Assigned Restaurant:</span>
                           </p>
@@ -271,8 +327,29 @@ export default function AdminDashboard() {
                         </div>
                       )}
                       {!user.assignedRestaurant && (
-                        <p className="text-sm text-gray-500">No restaurant assigned</p>
+                        <p className="text-sm text-gray-500 mb-4">No restaurant assigned</p>
                       )}
+                      <div className="flex gap-2 mt-auto">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditUser(user)}
+                          className="border-blue-600 text-blue-600 hover:bg-blue-50 flex-1"
+                        >
+                          <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user._id, user.username)}
+                          className="border-red-600 text-red-600 hover:bg-red-50 flex-1"
+                          disabled={deleteUserMutation.isPending}
+                        >
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -424,6 +501,46 @@ export default function AdminDashboard() {
           )}
         </div>
       </main>
+
+      {/* Edit User Dialog */}
+      <Dialog open={editUserModalOpen} onOpenChange={setEditUserModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Admin User</DialogTitle>
+            <DialogDescription>Update admin user details and restaurant assignment.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Username (Read-only)</Label>
+              <Input value={editedUser.username} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input type="email" value={editedUser.email} onChange={e => setEditedUser({...editedUser, email: e.target.value})} />
+            </div>
+            <div className="space-y-2">
+              <Label>Assign Restaurant</Label>
+              <Select value={editedUser.assignedRestaurant} onValueChange={val => setEditedUser({...editedUser, assignedRestaurant: val})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a restaurant" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {restaurants?.map((r: any) => (
+                    <SelectItem key={r._id} value={r._id}>{r.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUserModalOpen(false)}>Cancel</Button>
+            <Button onClick={() => editUserMutation.mutate({ id: editingUser._id, email: editedUser.email, assignedRestaurant: editedUser.assignedRestaurant })} disabled={editUserMutation.isPending}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* User Creation Dialog */}
       <Dialog open={userModalOpen} onOpenChange={setUserModalOpen}>
