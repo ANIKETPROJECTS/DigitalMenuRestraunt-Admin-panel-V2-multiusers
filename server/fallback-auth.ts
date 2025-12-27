@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 const FALLBACK_ADMIN = {
   id: "admin-001",
   username: "admin",
-  email: "admin@example.com",
+  email: "raneaniket23@gmail.com",
   password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
-  role: "admin"
+  role: "master"
 };
 
 // In-memory storage for fallback admin settings
@@ -26,8 +26,8 @@ let fallbackSettings = {
 let fallbackProfile = {
   _id: "admin-001",
   username: "admin",
-  email: "admin@example.com",
-  role: "admin"
+  email: "raneaniket23@gmail.com",
+  role: "master"
 };
 
 // In-memory storage for fallback admin password

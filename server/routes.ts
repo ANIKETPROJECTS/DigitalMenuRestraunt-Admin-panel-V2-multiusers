@@ -353,15 +353,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fallbackAdmin) {
         console.log(`✅ Fallback admin authenticated: ${username}`);
         
-        // Skip OTP for fallback admin to avoid lockout if email is not configured correctly
-        const token = generateToken(fallbackAdmin.id);
-        return res.json({ 
-          token, 
-          admin: {
-            ...fallbackAdmin,
-            role: (fallbackAdmin as any).role || 'master'
-          }
-        });
+        // Handle OTP for master admin (fallback or DB)
+        const masterEmail = (fallbackAdmin as any).email || 'raneaniket23@gmail.com';
+        
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Store OTP in DB if possible, or use a temporary store for fallback
+        // For fallback admin, we can try to update the DB record if it exists, or just use it for the current session
+        const dbAdmin = await Admin.findOne({ username: 'admin' }) as any;
+        if (dbAdmin) {
+          dbAdmin.otp = otp;
+          dbAdmin.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+          await dbAdmin.save();
+        }
+
+        // Send Email
+        try {
+          console.log(`📧 Sending OTP to master: ${masterEmail}`);
+          await sendOTPEmail(masterEmail, otp);
+          return res.json({ 
+            requiresOtp: true,
+            message: "OTP sent to your registered master email"
+          });
+        } catch (emailError: any) {
+          console.error("Failed to send OTP email to master:", emailError);
+          const errorMessage = emailError.code === 'EAUTH' 
+            ? "Email authentication failed. Please check your App Password settings."
+            : "Failed to send OTP email. Please try again later.";
+          return res.status(500).json({ message: errorMessage });
+        }
       }
 
       console.log(`❌ Invalid credentials for ${username}`);
