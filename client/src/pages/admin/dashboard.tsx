@@ -244,7 +244,7 @@ export default function AdminDashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
-                  <p className="text-gray-600 text-sm truncate">Total Restaurants</p>
+                  <p className="text-gray-600 text-sm truncate">{isMaster ? 'Total Restaurants' : 'Your Restaurant'}</p>
                   <p className="text-xl sm:text-2xl font-bold text-blue-600">
                     {restaurants?.length || 0}
                   </p>
@@ -254,6 +254,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
           
+          {isMaster && (
           <Card className="bg-white border-gray-200 shadow-sm">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
@@ -267,6 +268,7 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+          )}
           
           <Card className="bg-white border-gray-200 shadow-sm sm:col-span-2 lg:col-span-1">
             <CardContent className="p-4 sm:p-6">
@@ -398,16 +400,17 @@ export default function AdminDashboard() {
         )}
 
         {/* Restaurants Section */}
-        {currentView === 'restaurants' && (
+        {(!isMaster || currentView === 'restaurants') && (
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Restaurants</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{isMaster ? 'Restaurants' : 'Your Restaurant'}</h2>
             <div className="flex gap-2">
               {isMaster && (
                 <Button
                   onClick={() => setUserModalOpen(true)}
                   variant="outline"
                   className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
+                  data-testid="button-add-user"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Add User
@@ -417,6 +420,7 @@ export default function AdminDashboard() {
                 <Button
                   onClick={() => setLocation("/admin/restaurants/new")}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-semibold w-full sm:w-auto"
+                  data-testid="button-add-restaurant"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Restaurant

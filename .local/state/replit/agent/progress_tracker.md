@@ -67,3 +67,11 @@
     - Restaurants section now only shows when currentView === 'restaurants'
     - Toggle buttons highlight the active view with blue background
     - Workflow restarted and verified - toggle is working
+[x] 22. Restricted restaurant visibility for non-Master Admin users:
+    - Backend already filters restaurants: Master admins see all, non-masters see only assigned restaurant
+    - Updated statistics cards: Master admins see "Total Restaurants" + "Active Restaurants", non-masters see "Your Restaurant"
+    - Updated restaurant section heading: Master admins see "Restaurants", non-masters see "Your Restaurant"
+    - Hidden "Active Restaurants" card for non-Master admins
+    - Hidden "Add User" button for non-Master admins (only Master admins can add users)
+    - Restaurants section visibility: Master admins see when toggle is on 'restaurants', non-masters always see it
+    - Workflow restarted successfully - non-Master users now see only their assigned restaurant
