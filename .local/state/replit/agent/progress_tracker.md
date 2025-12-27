@@ -27,3 +27,4 @@
     - Only Profile and Theme tabs visible for non-Master admins
     - Master admins continue to see all 4 tabs: Profile, Theme, Security, System
     - Workflow restarted and verified - Settings modal now role-aware
+[x] 30. Re-installed cross-env package after session restart (Dec 27, 2024)
