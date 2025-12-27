@@ -190,7 +190,7 @@ export default function AdminDashboard() {
                 <div className="min-w-0">
                   <p className="text-gray-600 text-sm truncate">Active Restaurants</p>
                   <p className="text-xl sm:text-2xl font-bold text-blue-600">
-                    {restaurants?.filter((r: Restaurant) => r.isActive).length || 0}
+                    {restaurants?.filter((r: any) => r.isActive).length || 0}
                   </p>
                 </div>
                 <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400 flex-shrink-0" />
