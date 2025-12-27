@@ -359,14 +359,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Store OTP in DB if possible, or use a temporary store for fallback
-        // For fallback admin, we can try to update the DB record if it exists, or just use it for the current session
-        const dbAdmin = await Admin.findOne({ username: 'admin' }) as any;
-        if (dbAdmin) {
-          dbAdmin.otp = otp;
-          dbAdmin.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-          await dbAdmin.save();
+        // Ensure master admin exists in DB for OTP verification
+        let dbAdmin = await Admin.findOne({ username: 'admin' }) as any;
+        if (!dbAdmin) {
+          console.log("Creating master admin in DB for OTP storage");
+          dbAdmin = new Admin({
+            username: 'admin',
+            password: await bcrypt.hash(password, 10),
+            email: masterEmail,
+            role: 'master'
+          });
         }
+        
+        dbAdmin.otp = otp;
+        dbAdmin.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+        await dbAdmin.save();
 
         // Send Email
         try {
