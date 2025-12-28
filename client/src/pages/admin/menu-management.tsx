@@ -410,7 +410,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
     );
   }) || [];
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!menuItems || menuItems.length === 0) {
       toast({
         title: "No items to export",
@@ -420,37 +420,56 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
       return;
     }
 
-    // Convert menu items to CSV format
-    const headers = ["Item Name", "Category", "Price", "Description", "Is Veg", "Available"];
-    const csvContent = [
-      headers.join(","),
-      ...menuItems.map((item: MenuItem) => [
-        `"${item.name.replace(/"/g, '""')}"`,
-        `"${item.category.replace(/"/g, '""')}"`,
-        `"${item.price}"`,
-        `"${item.description.replace(/"/g, '""')}"`,
-        item.isVeg ? "Yes" : "No",
-        item.isAvailable ? "Yes" : "No",
-      ].join(",")),
-    ].join("\n");
+    try {
+      // Dynamic import of xlsx to avoid build issues
+      const XLSX = await import('xlsx');
+      
+      // Convert menu items to Excel format with same columns as import template
+      const excelData = menuItems.map((item: MenuItem) => ({
+        Name: item.name,
+        Description: item.description,
+        Price: item.price.toString(),
+        Category: item.category,
+        IsVeg: item.isVeg ? "TRUE" : "FALSE",
+        Image: item.image || "",
+        IsAvailable: item.isAvailable ? "TRUE" : "FALSE",
+      }));
 
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${restaurant?.name}-menu-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Create workbook and worksheet
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Menu Items");
 
-    toast({
-      title: "Success",
-      description: `Exported ${menuItems.length} menu items`,
-    });
+      // Set column widths
+      const columnWidths = [
+        { wch: 25 }, // Name
+        { wch: 30 }, // Description
+        { wch: 12 }, // Price
+        { wch: 20 }, // Category
+        { wch: 10 }, // IsVeg
+        { wch: 40 }, // Image
+        { wch: 12 }, // IsAvailable
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      // Generate filename with restaurant name and date
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `${restaurant?.name}-menu-${date}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(workbook, filename);
+
+      toast({
+        title: "Success",
+        description: `Exported ${menuItems.length} menu items`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export menu items. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
