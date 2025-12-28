@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Plus, Edit, Trash2, Menu, IndianRupee, Utensils, Leaf, RefreshCw, Upload, Search, Download } from "lucide-react";
 import { BulkMenuImport } from "@/components/BulkMenuImport";
+import * as XLSX from "xlsx";
 
 interface MenuItem {
   _id: string;
@@ -410,7 +411,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
     );
   }) || [];
 
-  const handleExport = async () => {
+  const handleExport = () => {
     if (!menuItems || menuItems.length === 0) {
       toast({
         title: "No items to export",
@@ -421,9 +422,6 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
     }
 
     try {
-      // Dynamic import of xlsx to avoid build issues
-      const XLSX = await import('xlsx');
-      
       // Convert menu items to Excel format with same columns as import template
       const excelData = menuItems.map((item: MenuItem) => ({
         Name: item.name,
@@ -464,6 +462,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
         description: `Exported ${menuItems.length} menu items`,
       });
     } catch (error) {
+      console.error("Export error:", error);
       toast({
         title: "Export Failed",
         description: "Failed to export menu items. Please try again.",

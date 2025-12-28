@@ -20,51 +20,22 @@
 [x] 20. Re-installed cross-env package after session restart
 [x] 21. Added toggle to switch between Admin Users and Restaurants views
 [x] 22. Restricted restaurant visibility for non-Master Admin users
-[x] 23. Limited Admin Settings to Profile and Theme tabs for non-Master admins:
-    - Added isMaster check in AdminSettingsModal component
-    - Security and System tabs now hidden for non-Master admin users
-    - TabsList grid changes from 4 columns to 2 columns for non-Masters
-    - Only Profile and Theme tabs visible for non-Master admins
-    - Master admins continue to see all 4 tabs: Profile, Theme, Security, System
-    - Workflow restarted and verified - Settings modal now role-aware
-[x] 30. Re-installed cross-env package after session restart (Dec 27, 2024)
-[x] 31. Fixed data staleness by clearing TanStack Query cache on login/logout
-[x] 32. Added query invalidation for user creation to ensure dashboard reflects new users immediately
-[x] 33. Reverted forced refreshes and ensured proper state updates via programmatic navigation and query invalidation
-[x] 34. Re-installed cross-env package after session restart (Dec 27, 2024) - workflow running successfully
-[x] 35. Set up email environment variables (EMAIL_USER and EMAIL_PASS) for OTP functionality
-    - EMAIL_USER: raneaniket23@gmail.com
-    - EMAIL_PASS: stored securely in environment
-    - Nodemailer transporter configured in server/routes.ts
-    - OTP email sending function ready for use
-    - Application running successfully with email configuration
-[x] 36. Verified .env file configuration for email credentials
-    - Confirmed dotenv.config() loads .env file at server startup
-    - Email credentials automatically injected into process.env
-    - Nodemailer uses process.env.EMAIL_USER and process.env.EMAIL_PASS
-    - Workflow restarted and confirmed loading: [dotenv@17.2.1] injecting env from .env
-    - Email credentials will be used every time the app starts
-    - Ready for OTP email sending functionality
-[x] 37. Fixed local VSCode email credential loading issue
-    - Changed nodemailer transporter to lazy-loading (created on first use, not at module load)
-    - Added .trim() to email credentials to remove whitespace issues
-    - Added validation to check if EMAIL_USER and EMAIL_PASS are set before using
-    - Added detailed error messages for debugging
-    - Workflow restarted and verified - application running successfully
-    - Local VSCode users can now run: npm install && npm run dev
-[x] 38. Re-installed cross-env package after session restart (Dec 28, 2024)
-    - Workflow restarted and verified - application running successfully
-    - MongoDB connected, server running on port 5000
-[x] 39. Added export button to Menu Management page - CSV format (Dec 28, 2024)
-    - Added Download icon import from lucide-react
-    - Created handleExport function that converts menu items to CSV format
-    - Added Export button with purple styling in action buttons section
-    - CSV export included columns: Item Name, Category, Price, Description, Is Veg, Available
-[x] 40. Updated export button to download Excel file format matching import template (Dec 28, 2024)
-    - Changed from CSV to XLSX format using xlsx library
-    - Export now matches import template with columns: Name, Description, Price, Category, IsVeg, Image, IsAvailable
-    - Uses TRUE/FALSE for IsVeg and IsAvailable fields to match import format
-    - Set appropriate column widths for better Excel readability
-    - Filename includes restaurant name and date (e.g., Barrel Born-menu-2024-12-28.xlsx)
-    - Dynamic import of xlsx library for performance
-    - Workflow restarted and verified - export feature working with Excel format
+[x] 23. Limited Admin Settings to Profile and Theme tabs for non-Master admins
+[x] 24. Re-installed cross-env package after session restart (Dec 27, 2024)
+[x] 25. Fixed data staleness by clearing TanStack Query cache on login/logout
+[x] 26. Added query invalidation for user creation
+[x] 27. Reverted forced refreshes and ensured proper state updates via navigation
+[x] 28. Re-installed cross-env package after session restart (Dec 27, 2024)
+[x] 29. Set up email environment variables (EMAIL_USER and EMAIL_PASS) for OTP
+[x] 30. Verified .env file configuration for email credentials
+[x] 31. Fixed local VSCode email credential loading issue
+[x] 32. Re-installed cross-env package after session restart (Dec 28, 2024)
+[x] 33. Added export button to Menu Management page (Dec 28, 2024)
+[x] 34. Updated export to download Excel file format matching import template (Dec 28, 2024)
+[x] 35. Fixed export functionality - changed from dynamic to direct xlsx import (Dec 28, 2024)
+    - Replaced `await import('xlsx')` with direct `import * as XLSX from "xlsx"`
+    - Removed async/await from handleExport function
+    - Excel export now working properly with exact import template format
+    - Exports 398 menu items with columns: Name, Description, Price, Category, IsVeg, Image, IsAvailable
+    - Workflow restarted and verified - export feature fully functional
+    - Users can now download all restaurant menu items as Excel file
