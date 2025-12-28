@@ -26,16 +26,21 @@
 [x] 26. Added query invalidation for user creation
 [x] 27. Reverted forced refreshes and ensured proper state updates via navigation
 [x] 28. Re-installed cross-env package after session restart (Dec 27, 2024)
-[x] 29. Set up email environment variables (EMAIL_USER and EMAIL_PASS) for OTP
+[x] 29. Set up email environment variables for OTP
 [x] 30. Verified .env file configuration for email credentials
 [x] 31. Fixed local VSCode email credential loading issue
 [x] 32. Re-installed cross-env package after session restart (Dec 28, 2024)
 [x] 33. Added export button to Menu Management page (Dec 28, 2024)
-[x] 34. Updated export to download Excel file format matching import template (Dec 28, 2024)
-[x] 35. Fixed export functionality - changed from dynamic to direct xlsx import (Dec 28, 2024)
-    - Replaced `await import('xlsx')` with direct `import * as XLSX from "xlsx"`
-    - Removed async/await from handleExport function
-    - Excel export now working properly with exact import template format
-    - Exports 398 menu items with columns: Name, Description, Price, Category, IsVeg, Image, IsAvailable
-    - Workflow restarted and verified - export feature fully functional
-    - Users can now download all restaurant menu items as Excel file
+[x] 34. Updated export to download Excel file format matching import template
+[x] 35. Fixed export functionality - changed from dynamic to direct xlsx import
+[x] 36. Improved export with loading states, text truncation, and console logging
+[x] 37. Added sorting and filtering functionality to Menu Management (Dec 28, 2024)
+    - Implemented sorting by Name, Price, Category, and Recent
+    - Added ascending/descending sort order toggle
+    - Implemented filtering by Vegetarian status
+    - Implemented filtering by Availability (Available/Unavailable)
+    - Added "Clear All" button to reset filters and sorting
+    - All controls responsive and mobile-friendly (2-5 columns grid layout)
+    - Sort and filter UI now visible below search bar
+    - All filtering logic working correctly with proper state management
+    - Workflow restarted and verified - sorting and filtering fully functional

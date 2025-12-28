@@ -813,7 +813,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
         </div>
 
           {/* Search Bar */}
-          <div className="relative max-w-md mb-8">
+          <div className="relative max-w-md mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               type="text"
@@ -821,6 +821,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-white border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              data-testid="input-search-menu"
             />
             {searchQuery && (
               <Button
@@ -832,6 +833,76 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
                 ×
               </Button>
             )}
+          </div>
+
+          {/* Sort and Filter Controls */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-8">
+            {/* Sort By */}
+            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <SelectTrigger className="bg-white border-gray-200 h-10" data-testid="select-sort-by">
+                <ArrowUpDown className="w-3 h-3 mr-1" />
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">By Name</SelectItem>
+                <SelectItem value="price">By Price</SelectItem>
+                <SelectItem value="category">By Category</SelectItem>
+                <SelectItem value="recent">By Recent</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Sort Order */}
+            <Button
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              variant="outline"
+              className="border-gray-200 h-10 text-xs sm:text-sm"
+              data-testid="button-sort-order"
+            >
+              {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
+            </Button>
+
+            {/* Filter by Veg */}
+            <Select value={filterVeg} onValueChange={(value: any) => setFilterVeg(value)}>
+              <SelectTrigger className="bg-white border-gray-200 h-10" data-testid="select-filter-veg">
+                <Leaf className="w-3 h-3 mr-1" />
+                <SelectValue placeholder="Veg" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="veg">Veg</SelectItem>
+                <SelectItem value="non-veg">Non-Veg</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Filter by Availability */}
+            <Select value={filterAvailable} onValueChange={(value: any) => setFilterAvailable(value)}>
+              <SelectTrigger className="bg-white border-gray-200 h-10" data-testid="select-filter-available">
+                <SelectValue placeholder="Available" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="unavailable">Unavailable</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Clear Filters */}
+            <Button
+              onClick={() => {
+                setSortBy("name");
+                setSortOrder("asc");
+                setFilterCategory("all");
+                setFilterVeg("all");
+                setFilterAvailable("all");
+                setSearchQuery("");
+              }}
+              variant="ghost"
+              className="border-gray-200 h-10 text-xs sm:text-sm"
+              data-testid="button-clear-filters"
+            >
+              <X className="w-3 h-3 mr-1" />
+              Clear
+            </Button>
           </div>
 
         {/* Menu Items by Category */}
