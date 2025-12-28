@@ -843,8 +843,9 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
               setSortBy(sort as any);
               setSortOrder(order);
             }}>
-              <SelectTrigger className="bg-blue-600 text-white border-blue-600 h-10 w-auto hover:bg-blue-700" data-testid="select-sort-by">
-                <ArrowUpDown className="w-4 h-4" />
+              <SelectTrigger className="bg-blue-600 text-white border-blue-600 h-10 w-auto hover:bg-blue-700 px-3" data-testid="select-sort-by">
+                <ArrowUpDown className="w-4 h-4 mr-1.5" />
+                <span>Sort</span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="name-asc">Name (A-Z)</SelectItem>
@@ -863,8 +864,9 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
               setFilterVeg(veg as any);
               setFilterAvailable(available as any);
             }}>
-              <SelectTrigger className="bg-blue-600 text-white border-blue-600 h-10 w-auto hover:bg-blue-700" data-testid="select-filter">
-                <Filter className="w-4 h-4" />
+              <SelectTrigger className="bg-blue-600 text-white border-blue-600 h-10 w-auto hover:bg-blue-700 px-3" data-testid="select-filter">
+                <Filter className="w-4 h-4 mr-1.5" />
+                <span>Filter</span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-all">All Items</SelectItem>
@@ -890,7 +892,8 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
               className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-3"
               data-testid="button-reset"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 mr-1.5" />
+              Reset
             </Button>
           </div>
 
